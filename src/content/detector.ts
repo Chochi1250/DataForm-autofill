@@ -55,6 +55,7 @@ export function detectField(element: FormElement): DetectedField {
     metadata,
     valueAvailable: false,
     availableValueCount: 0,
+    availableValues: [],
   };
 }
 

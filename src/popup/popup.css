@@ -10,4 +10,5 @@ h1 { font-size: 17px; margin: 0 0 14px; text-transform: uppercase; }
 .field-name { display: block; font-weight: 700; text-transform: capitalize; }
 .confidence { color: #526076; font-size: 12px; }
 .fill-field { display: block; margin-top: 7px; padding: 4px 8px; }
+.value-selection { display: block; margin-top: 7px; padding: 4px; max-width: 100%; }
 .high::before { content: "🟢 "; }.medium::before { content: "🟡 "; }.low::before { content: "🔴 "; }

@@ -31,6 +31,13 @@ export interface DetectedField {
   metadata: FieldMetadata;
   valueAvailable: boolean;
   availableValueCount: number;
+  availableValues: AvailableValue[];
+}
+
+export interface AvailableValue {
+  id: string;
+  label: string;
+  value: string;
 }
 
 export interface DetectionResponse {

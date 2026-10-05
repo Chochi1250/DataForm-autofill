@@ -1,5 +1,5 @@
 import { getProfile, getSavedAnswers } from "../storage/storage";
-import type { DetectedField, FieldType, Profile, SavedAnswer } from "../types";
+import type { AvailableValue, DetectedField, FieldType, Profile, SavedAnswer } from "../types";
 
 const PROFILE_FIELDS: Record<string, keyof Profile> = {
   FIRST_NAME: "firstName",
@@ -17,31 +17,34 @@ function profileFieldValue(fieldType: FieldType, profile: Profile | undefined): 
   return value || undefined;
 }
 
-function profileValue(field: DetectedField, profile: Profile | undefined): boolean {
-  const profileKey = PROFILE_FIELDS[field.fieldType];
-  return profileKey ? Boolean(profile?.[profileKey]?.trim()) : false;
-}
-
-function savedAnswerCount(field: DetectedField, answers: SavedAnswer[]): number {
-  return answers.filter((answer) => answer.fieldType === field.fieldType && answer.value.trim()).length;
+function availableValues(fieldType: FieldType, profile: Profile | undefined, answers: SavedAnswer[]): AvailableValue[] {
+  const values: AvailableValue[] = [];
+  const profileValue = profileFieldValue(fieldType, profile);
+  if (profileValue) values.push({ id: "profile", label: "Profile", value: profileValue });
+  for (const answer of answers) {
+    if (answer.fieldType === fieldType && answer.value.trim()) {
+      values.push({ id: `answer:${answer.id}`, label: answer.name, value: answer.value.trim() });
+    }
+  }
+  return values;
 }
 
 export async function addValueAvailability(fields: DetectedField[]): Promise<DetectedField[]> {
   const [profile, answers] = await Promise.all([getProfile(), getSavedAnswers()]);
   return fields.map((field) => {
-    const profileAvailable = profileValue(field, profile);
-    const answerCount = savedAnswerCount(field, answers);
+    const values = availableValues(field.fieldType, profile, answers);
     return {
       ...field,
-      valueAvailable: profileAvailable || answerCount > 0,
-      availableValueCount: (profileAvailable ? 1 : 0) + answerCount,
+      valueAvailable: values.length > 0,
+      availableValueCount: values.length,
+      availableValues: values,
     };
   });
 }
 
-export async function resolveFieldValue(fieldType: FieldType): Promise<string | undefined> {
+export async function resolveFieldValue(fieldType: FieldType, valueId?: string): Promise<string | undefined> {
   const [profile, answers] = await Promise.all([getProfile(), getSavedAnswers()]);
-  const profileValue = profileFieldValue(fieldType, profile);
-  if (profileValue) return profileValue;
-  return answers.find((answer) => answer.fieldType === fieldType && answer.value.trim())?.value.trim();
+  const values = availableValues(fieldType, profile, answers);
+  if (valueId) return values.find((value) => value.id === valueId)?.value;
+  return values.length === 1 ? values[0].value : undefined;
 }

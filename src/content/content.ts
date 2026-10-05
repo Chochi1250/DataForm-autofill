@@ -27,7 +27,7 @@ function inspectAddedNodes(nodes: NodeList): void {
   }
 }
 
-function isFillMessage(message: unknown): message is { type: "FILL_FIELD" | "FILL_KNOWN_FIELDS"; elementId?: string; fieldType?: FieldType } {
+function isFillMessage(message: unknown): message is { type: "FILL_FIELD" | "FILL_KNOWN_FIELDS"; elementId?: string; fieldType?: FieldType; valueId?: string } {
   if (typeof message !== "object" || message === null || !("type" in message)) return false;
   return message.type === "FILL_FIELD" || message.type === "FILL_KNOWN_FIELDS";
 }
@@ -38,12 +38,16 @@ function isFormElement(element: Element | null): element is FormElement {
   return element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement || element instanceof HTMLSelectElement;
 }
 
-async function fillElement(elementId: string, fieldType: FieldType): Promise<FillResult> {
-  if (!fields.has(elementId)) return { filled: false, error: "ELEMENT_NOT_FOUND" };
+async function fillElement(elementId: string, fieldType: FieldType, valueId?: string): Promise<FillResult> {
+  const detectedField = fields.get(elementId);
+  if (!detectedField) return { filled: false, error: "ELEMENT_NOT_FOUND" };
+  if (detectedField.fieldType === "UNKNOWN" || detectedField.fieldType !== fieldType) {
+    return { filled: false, error: "INVALID_ELEMENT" };
+  }
   const element = document.querySelector(`[data-jobform-element-id="${CSS.escape(elementId)}"]`);
   if (!element) return { filled: false, error: "ELEMENT_NOT_FOUND" };
   if (!isFormElement(element) || element.disabled) return { filled: false, error: "INVALID_ELEMENT" };
-  const value = await resolveFieldValue(fieldType);
+  const value = await resolveFieldValue(fieldType, valueId);
   if (!value) return { filled: false, error: "NO_VALUE" };
   element.value = value;
   element.dispatchEvent(new Event("input", { bubbles: true }));
@@ -71,13 +75,13 @@ chrome.runtime.onMessage.addListener((message: unknown, _sender, sendResponse) =
   if (isFillMessage(message)) {
     inspect();
     if (message.type === "FILL_FIELD" && message.elementId && message.fieldType) {
-      void fillElement(message.elementId, message.fieldType).then((result) => sendResponse(result));
+      void fillElement(message.elementId, message.fieldType, message.valueId).then((result) => sendResponse(result));
       return true;
     }
     if (message.type === "FILL_KNOWN_FIELDS") {
       void addValueAvailability(Array.from(fields.values())).then(async (availableFields) => {
-        const fillable = availableFields.filter((field) => field.valueAvailable && field.fieldType !== "UNKNOWN");
-        const results = await Promise.all(fillable.map((field) => fillElement(field.elementId, field.fieldType)));
+        const fillable = availableFields.filter((field) => field.availableValueCount === 1 && field.fieldType !== "UNKNOWN");
+        const results = await Promise.all(fillable.map((field) => fillElement(field.elementId, field.fieldType, field.availableValues[0].id)));
         sendResponse({ filledCount: results.filter((result) => result.filled).length });
       });
       return true;

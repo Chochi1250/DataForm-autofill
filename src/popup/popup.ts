@@ -19,7 +19,7 @@ function confidenceClass(confidence: number): string {
 function render(fields: DetectedField[]): void {
   if (!status || !list) return;
   detectedFields = fields;
-  if (fillKnown) fillKnown.disabled = !fields.some((field) => field.valueAvailable && field.fieldType !== "UNKNOWN");
+  if (fillKnown) fillKnown.disabled = !fields.some((field) => field.availableValueCount === 1 && field.fieldType !== "UNKNOWN");
   status.textContent = `${fields.length} field${fields.length === 1 ? "" : "s"} detected`;
   list.replaceChildren(...fields.map((field) => {
     const item = document.createElement("li");
@@ -31,25 +31,45 @@ function render(fields: DetectedField[]): void {
     confidence.className = "confidence";
     confidence.textContent = `Confidence: ${Math.round(field.confidence * 100)}%`;
     item.append(fieldName, confidence);
-    if (field.valueAvailable && field.fieldType !== "UNKNOWN") {
+    if (field.availableValueCount === 1 && field.fieldType !== "UNKNOWN") {
       const button = document.createElement("button");
       button.type = "button";
       button.className = "fill-field";
       button.dataset.elementId = field.elementId;
       button.dataset.fieldType = field.fieldType;
+      button.dataset.valueId = field.availableValues[0].id;
       button.textContent = "Fill";
       item.append(button);
+    } else if (field.availableValueCount > 1 && field.fieldType !== "UNKNOWN") {
+      const selection = document.createElement("select");
+      selection.className = "value-selection";
+      selection.dataset.elementId = field.elementId;
+      selection.dataset.fieldType = field.fieldType;
+      for (const available of field.availableValues) {
+        const option = document.createElement("option");
+        option.value = available.id;
+        option.textContent = available.label;
+        selection.append(option);
+      }
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "fill-field";
+      button.dataset.elementId = field.elementId;
+      button.dataset.fieldType = field.fieldType;
+      button.dataset.selection = "value-selection";
+      button.textContent = "Fill selected";
+      item.append(selection, button);
     }
     return item;
   }));
 }
 
-async function sendFillMessage(message: { type: "FILL_FIELD" | "FILL_KNOWN_FIELDS"; elementId?: string; fieldType?: string }): Promise<void> {
+async function sendFillMessage(message: { type: "FILL_FIELD" | "FILL_KNOWN_FIELDS"; elementId?: string; fieldType?: string; valueId?: string }): Promise<void> {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!tab.id) return;
-  const result = await chrome.tabs.sendMessage(tab.id, message) as { filled?: boolean; filledCount?: number };
+  const result = await chrome.tabs.sendMessage(tab.id, message) as { filled?: boolean; filledCount?: number; error?: string };
   if (status && result.filledCount !== undefined) status.textContent = `${result.filledCount} fields filled`;
-  if (status && result.filled !== undefined) status.textContent = result.filled ? "Field filled" : "No value available";
+  if (status && result.filled !== undefined) status.textContent = result.filled ? "Field filled" : (result.error ?? "Could not fill field");
 }
 
 async function loadFields(): Promise<void> {
@@ -69,11 +89,14 @@ list?.addEventListener("click", (event) => {
   if (!(target instanceof HTMLButtonElement) || !target.classList.contains("fill-field")) return;
   const elementId = target.dataset.elementId;
   const fieldType = target.dataset.fieldType;
-  if (elementId && fieldType) void sendFillMessage({ type: "FILL_FIELD", elementId, fieldType });
+  const item = target.closest(".field");
+  const selection = item?.querySelector<HTMLSelectElement>(".value-selection");
+  const valueId = selection?.value ?? target.dataset.valueId;
+  if (elementId && fieldType) void sendFillMessage({ type: "FILL_FIELD", elementId, fieldType, valueId });
 });
 
 fillKnown?.addEventListener("click", () => {
-  if (detectedFields.some((field) => field.valueAvailable && field.fieldType !== "UNKNOWN")) {
+  if (detectedFields.some((field) => field.availableValueCount === 1 && field.fieldType !== "UNKNOWN")) {
     void sendFillMessage({ type: "FILL_KNOWN_FIELDS" });
   }
 });
