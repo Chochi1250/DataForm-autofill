@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JobForm Autofill — Options</title>
+  </head>
+  <body>
+    <main class="options-page">
+      <h1>JobForm Autofill</h1>
+      <p>Configurá tu perfil para usarlo más adelante en formularios.</p>
+      <form id="profile-form">
+        <label>First name <input name="firstName" autocomplete="given-name" /></label>
+        <label>Last name <input name="lastName" autocomplete="family-name" /></label>
+        <label>Email <input name="email" type="email" autocomplete="email" /></label>
+        <label>Phone <input name="phone" type="tel" autocomplete="tel" /></label>
+        <label>City <input name="city" autocomplete="address-level2" /></label>
+        <label>Country <input name="country" autocomplete="country-name" /></label>
+        <label>LinkedIn <input name="linkedin" type="url" placeholder="https://www.linkedin.com/in/..." /></label>
+        <button type="submit">Save profile</button>
+        <p id="status" role="status" aria-live="polite"></p>
+      </form>
+      <hr />
+      <section aria-labelledby="answers-heading">
+        <h2 id="answers-heading">Saved answers</h2>
+        <form id="answer-form">
+          <input type="hidden" name="id" />
+          <label>Field type
+            <select name="fieldType" required>
+              <option value="FIRST_NAME">First name</option>
+              <option value="LAST_NAME">Last name</option>
+              <option value="EMAIL">Email</option>
+              <option value="PHONE">Phone</option>
+              <option value="CITY">City</option>
+              <option value="COUNTRY">Country</option>
+              <option value="LINKEDIN">LinkedIn</option>
+              <option value="CURRENT_COMPANY">Current company</option>
+              <option value="CURRENT_POSITION">Current position</option>
+              <option value="UNKNOWN">Unknown</option>
+            </select>
+          </label>
+          <label>Name <input name="name" required /></label>
+          <label>Answer <textarea name="value" rows="3" required></textarea></label>
+          <div class="form-actions">
+            <button type="submit">Save answer</button>
+            <button id="cancel-answer" type="button" hidden>Cancel edit</button>
+          </div>
+          <p id="answer-status" role="status" aria-live="polite"></p>
+        </form>
+        <ul id="answer-list" class="answer-list" aria-live="polite"></ul>
+      </section>
+    </main>
+    <script type="module" src="/src/options/options.ts"></script>
+  </body>
+</html>
