@@ -1,5 +1,5 @@
 import { getProfile, getSavedAnswers } from "../storage/storage";
-import type { DetectedField, Profile, SavedAnswer } from "../types";
+import type { DetectedField, FieldType, Profile, SavedAnswer } from "../types";
 
 const PROFILE_FIELDS: Record<string, keyof Profile> = {
   FIRST_NAME: "firstName",
@@ -10,6 +10,12 @@ const PROFILE_FIELDS: Record<string, keyof Profile> = {
   COUNTRY: "country",
   LINKEDIN: "linkedin",
 };
+
+function profileFieldValue(fieldType: FieldType, profile: Profile | undefined): string | undefined {
+  const profileKey = PROFILE_FIELDS[fieldType];
+  const value = profileKey ? profile?.[profileKey]?.trim() : undefined;
+  return value || undefined;
+}
 
 function profileValue(field: DetectedField, profile: Profile | undefined): boolean {
   const profileKey = PROFILE_FIELDS[field.fieldType];
@@ -31,4 +37,11 @@ export async function addValueAvailability(fields: DetectedField[]): Promise<Det
       availableValueCount: (profileAvailable ? 1 : 0) + answerCount,
     };
   });
+}
+
+export async function resolveFieldValue(fieldType: FieldType): Promise<string | undefined> {
+  const [profile, answers] = await Promise.all([getProfile(), getSavedAnswers()]);
+  const profileValue = profileFieldValue(fieldType, profile);
+  if (profileValue) return profileValue;
+  return answers.find((answer) => answer.fieldType === fieldType && answer.value.trim())?.value.trim();
 }

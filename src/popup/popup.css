@@ -3,8 +3,11 @@ body { margin: 0; min-width: 320px; }
 .popup { padding: 16px; }
 h1 { font-size: 17px; margin: 0 0 14px; text-transform: uppercase; }
 .status { color: #526076; margin: 0 0 12px; }
+#fill-known { margin-bottom: 10px; }
+#fill-known:disabled { cursor: not-allowed; opacity: .55; }
 .field-list { list-style: none; margin: 0; padding: 0; }
 .field { border-top: 1px solid #e2e8f0; padding: 10px 0; }
 .field-name { display: block; font-weight: 700; text-transform: capitalize; }
 .confidence { color: #526076; font-size: 12px; }
+.fill-field { display: block; margin-top: 7px; padding: 4px 8px; }
 .high::before { content: "🟢 "; }.medium::before { content: "🟡 "; }.low::before { content: "🔴 "; }
