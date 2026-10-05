@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>JobForm Autofill — Detector fixture</title>
+    <style>
+      body { font: 16px system-ui, sans-serif; max-width: 760px; margin: 2rem auto; padding: 0 1rem; }
+      fieldset { margin: 1rem 0; padding: 1rem; }
+      label, input, select, textarea { display: block; margin: .35rem 0; }
+      input, select, textarea { width: min(100%, 30rem); box-sizing: border-box; padding: .45rem; }
+      .inline { display: inline-block; width: auto; margin-right: 1rem; }
+    </style>
+  </head>
+  <body>
+    <h1>Detector fixture</h1>
+    <p>Esta página contiene variantes intencionalmente redundantes y ambiguas para validar señales y confianza.</p>
+
+    <form>
+      <fieldset>
+        <legend>Identidad</legend>
+        <label for="first-name">Nombre</label>
+        <input id="first-name" name="first_name" type="text" autocomplete="given-name" placeholder="Tu nombre" />
+
+        <label for="surname">Apellido</label>
+        <input id="surname" name="last_name" type="text" autocomplete="family-name" />
+
+        <label for="given-en">First name</label>
+        <input id="given-en" name="givenName" type="text" />
+
+        <label for="family-en">Last name</label>
+        <input id="family-en" name="familyName" type="text" />
+      </fieldset>
+
+      <fieldset>
+        <legend>Contacto</legend>
+        <label>Correo electrónico <input name="candidate_email" type="text" /></label>
+        <input name="emailAddress" type="email" placeholder="Email address" />
+        <label for="phone-es">Teléfono</label>
+        <input id="phone-es" name="telefono" type="tel" />
+        <input name="mobile_number" type="text" aria-label="Mobile phone" />
+      </fieldset>
+
+      <fieldset>
+        <legend>Ubicación</legend>
+        <label for="city">Ciudad</label>
+        <input id="city" name="city" type="text" />
+        <input name="location_country" type="text" placeholder="Country" />
+        <select name="pais" aria-label="País">
+          <option value="">Seleccioná un país</option>
+          <option>Argentina</option>
+        </select>
+      </fieldset>
+
+      <fieldset>
+        <legend>Experiencia y enlaces</legend>
+        <label for="linkedin">Perfil profesional</label>
+        <input id="linkedin" name="linkedin_url" type="url" />
+        <input name="current_employer" type="text" placeholder="Current company" />
+        <label for="cargo">Puesto actual</label>
+        <input id="cargo" name="current_position" type="text" />
+        <input name="job_title" type="text" aria-label="Current job title" />
+      </fieldset>
+
+      <fieldset>
+        <legend>Controles adicionales</legend>
+        <label for="cover-letter">Mensaje para el equipo</label>
+        <textarea id="cover-letter" name="cover_letter"></textarea>
+        <label class="inline"><input class="inline" type="checkbox" name="consent" /> Acepto las condiciones</label>
+        <label class="inline"><input class="inline" type="radio" name="work_mode" value="remote" /> Remoto</label>
+        <input name="portfolio" type="url" placeholder="Website or portfolio" />
+        <input type="text" aria-label="Additional information" />
+      </fieldset>
+    </form>
+  </body>
+</html>
