@@ -1,4 +1,5 @@
 import { detectField, findFormElements } from "./detector";
+import { addValueAvailability } from "./value-resolver";
 import type { DetectedField, DetectionResponse } from "../types";
 
 const fields = new Map<string, DetectedField>();
@@ -35,8 +36,11 @@ new MutationObserver((mutations) => {
 chrome.runtime.onMessage.addListener((message: unknown, _sender, sendResponse) => {
   if (typeof message === "object" && message !== null && "type" in message && message.type === "GET_DETECTED_FIELDS") {
     inspect();
-    const response: DetectionResponse = { fields: Array.from(fields.values()) };
-    sendResponse(response);
+    void addValueAvailability(Array.from(fields.values())).then((availableFields) => {
+      const response: DetectionResponse = { fields: availableFields };
+      sendResponse(response);
+    });
+    return true;
   }
   return false;
 });

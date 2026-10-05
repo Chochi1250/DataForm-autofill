@@ -29,6 +29,8 @@ export interface DetectedField {
   fieldType: FieldType;
   confidence: number;
   metadata: FieldMetadata;
+  valueAvailable: boolean;
+  availableValueCount: number;
 }
 
 export interface DetectionResponse {

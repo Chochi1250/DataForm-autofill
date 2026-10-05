@@ -48,7 +48,14 @@ export function getMetadata(element: FormElement): FieldMetadata {
 export function detectField(element: FormElement): DetectedField {
   const metadata = getMetadata(element);
   const match = matchField(metadata);
-  return { elementId: getElementId(element), fieldType: match.fieldType, confidence: match.confidence, metadata };
+  return {
+    elementId: getElementId(element),
+    fieldType: match.fieldType,
+    confidence: match.confidence,
+    metadata,
+    valueAvailable: false,
+    availableValueCount: 0,
+  };
 }
 
 export function findFormElements(root: ParentNode = document): FormElement[] {
