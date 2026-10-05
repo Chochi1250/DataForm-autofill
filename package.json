@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "tsc --noEmit && vite build --mode chrome",
-    "build:chrome": "tsc --noEmit && vite build --mode chrome",
-    "build:firefox": "tsc --noEmit && vite build --mode firefox",
+    "build": "tsc --noEmit && vite build --mode chrome && vite build --config vite.content.config.ts --mode chrome",
+    "build:chrome": "tsc --noEmit && vite build --mode chrome && vite build --config vite.content.config.ts --mode chrome",
+    "build:firefox": "tsc --noEmit && vite build --mode firefox && vite build --config vite.content.config.ts --mode firefox",
     "dev": "vite build --watch"
   },
   "devDependencies": {
