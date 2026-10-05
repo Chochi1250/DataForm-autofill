@@ -1,0 +1,17 @@
+{
+  "name": "jobform-autofill",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc --noEmit && vite build --mode chrome",
+    "build:chrome": "tsc --noEmit && vite build --mode chrome",
+    "build:firefox": "tsc --noEmit && vite build --mode firefox",
+    "dev": "vite build --watch"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.322",
+    "@types/node": "^24.0.0",
+    "typescript": "^5.8.3",
+    "vite": "^7.0.0"
+  }
+}
