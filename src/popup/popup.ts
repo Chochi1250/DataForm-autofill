@@ -30,7 +30,11 @@ function render(fields: DetectedField[]): void {
     const confidence = document.createElement("span");
     confidence.className = "confidence";
     confidence.textContent = `Confidence: ${Math.round(field.confidence * 100)}%`;
-    item.append(fieldName, confidence);
+    const trace = document.createElement("span");
+    trace.className = "trace";
+    const traceParts = [field.metadata.name && `name=${field.metadata.name}`, field.metadata.id && `id=${field.metadata.id}`].filter(Boolean);
+    trace.textContent = traceParts.length > 0 ? traceParts.join(" · ") : `element=${field.elementId}`;
+    item.append(fieldName, confidence, trace);
     if (field.availableValueCount === 1 && field.fieldType !== "UNKNOWN") {
       const button = document.createElement("button");
       button.type = "button";

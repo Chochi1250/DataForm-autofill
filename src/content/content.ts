@@ -3,6 +3,7 @@ import { addValueAvailability, resolveFieldValue } from "./value-resolver";
 import type { DetectedField, DetectionResponse, FieldType } from "../types";
 
 const fields = new Map<string, DetectedField>();
+const elementsById = new Map<string, FormElement>();
 const processedElements = new WeakSet<Element>();
 
 function inspect(root: ParentNode = document): void {
@@ -17,6 +18,7 @@ function inspectElement(element: Element): void {
   processedElements.add(element);
   const detected = detectField(element);
   fields.set(detected.elementId, detected);
+  elementsById.set(detected.elementId, element);
 }
 
 function inspectAddedNodes(nodes: NodeList): void {
@@ -44,8 +46,8 @@ async function fillElement(elementId: string, fieldType: FieldType, valueId?: st
   if (detectedField.fieldType === "UNKNOWN" || detectedField.fieldType !== fieldType) {
     return { filled: false, error: "INVALID_ELEMENT" };
   }
-  const element = document.querySelector(`[data-jobform-element-id="${CSS.escape(elementId)}"]`);
-  if (!element) return { filled: false, error: "ELEMENT_NOT_FOUND" };
+  const element = elementsById.get(elementId);
+  if (!element || !element.isConnected) return { filled: false, error: "ELEMENT_NOT_FOUND" };
   if (!isFormElement(element) || element.disabled) return { filled: false, error: "INVALID_ELEMENT" };
   const value = await resolveFieldValue(fieldType, valueId);
   if (!value) return { filled: false, error: "NO_VALUE" };
