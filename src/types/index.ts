@@ -1,13 +1,24 @@
 export const FIELD_TYPES = [
   "FIRST_NAME",
   "LAST_NAME",
+  "PATERNAL_LAST_NAME",
+  "MATERNAL_LAST_NAME",
   "EMAIL",
   "PHONE",
+  "PHONE_COUNTRY_CODE",
+  "PHONE_ADDITIONAL_CODE",
   "CITY",
   "COUNTRY",
   "LINKEDIN",
   "CURRENT_COMPANY",
   "CURRENT_POSITION",
+  "EXPERIENCE_POSITION",
+  "EXPERIENCE_COMPANY",
+  "EXPERIENCE_LOCATION",
+  "EXPERIENCE_CURRENT",
+  "EXPERIENCE_START_DATE",
+  "EXPERIENCE_END_DATE",
+  "EXPERIENCE_DESCRIPTION",
   "UNKNOWN",
 ] as const;
 
@@ -59,4 +70,15 @@ export interface SavedAnswer {
   fieldType: FieldType;
   name: string;
   value: string;
+}
+
+export interface Experience {
+  id: string;
+  position: string;
+  company: string;
+  location: string;
+  current: boolean;
+  startDate: string;
+  endDate: string;
+  description: string;
 }

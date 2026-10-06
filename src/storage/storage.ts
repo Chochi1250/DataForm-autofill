@@ -1,8 +1,9 @@
-import type { Profile, SavedAnswer } from "../types";
+import type { Experience, Profile, SavedAnswer } from "../types";
 
 const STORAGE_KEYS = {
   profile: "jobform.profile",
   savedAnswers: "jobform.savedAnswers",
+  experiences: "jobform.experiences",
 } as const;
 
 export async function getLocalValue<T>(key: string): Promise<T | undefined> {
@@ -66,4 +67,31 @@ export async function updateAnswer(id: string, changes: Partial<Omit<SavedAnswer
 export async function deleteAnswer(id: string): Promise<void> {
   const answers = await getSavedAnswers();
   await setLocalValue(STORAGE_KEYS.savedAnswers, answers.filter((answer) => answer.id !== id));
+}
+
+export async function getExperiences(): Promise<Experience[]> {
+  return (await getLocalValue<Experience[]>(STORAGE_KEYS.experiences)) ?? [];
+}
+
+export async function saveExperience(experience: Experience): Promise<void> {
+  const experiences = await getExperiences();
+  const index = experiences.findIndex((item) => item.id === experience.id);
+  if (index === -1) experiences.push(experience);
+  else experiences[index] = experience;
+  await setLocalValue(STORAGE_KEYS.experiences, experiences);
+}
+
+export async function updateExperience(id: string, changes: Partial<Omit<Experience, "id">>): Promise<Experience | undefined> {
+  const experiences = await getExperiences();
+  const index = experiences.findIndex((item) => item.id === id);
+  if (index === -1) return undefined;
+  const updated = { ...experiences[index], ...changes, id };
+  experiences[index] = updated;
+  await setLocalValue(STORAGE_KEYS.experiences, experiences);
+  return updated;
+}
+
+export async function deleteExperience(id: string): Promise<void> {
+  const experiences = await getExperiences();
+  await setLocalValue(STORAGE_KEYS.experiences, experiences.filter((experience) => experience.id !== id));
 }
