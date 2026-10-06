@@ -1,10 +1,19 @@
 import "./popup.css";
+import { MASS_FILL_CONFIDENCE_THRESHOLD } from "../types";
 import type { DetectedField, DetectionResponse } from "../types";
 
 const status = document.querySelector<HTMLParagraphElement>("#status");
 const list = document.querySelector<HTMLUListElement>("#field-list");
 const fillKnown = document.querySelector<HTMLButtonElement>("#fill-known");
 let detectedFields: DetectedField[] = [];
+
+function isEligibleForMassFill(field: DetectedField): boolean {
+  return field.fieldType !== "UNKNOWN"
+    && field.confidence >= MASS_FILL_CONFIDENCE_THRESHOLD
+    && field.availableValueCount === 1
+    && field.availableValues.length === 1
+    && Boolean(field.availableValues[0]?.value.trim());
+}
 
 function displayName(field: DetectedField): string {
   return field.fieldType.toLowerCase().replaceAll("_", " ");
@@ -19,7 +28,7 @@ function confidenceClass(confidence: number): string {
 function render(fields: DetectedField[]): void {
   if (!status || !list) return;
   detectedFields = fields;
-  if (fillKnown) fillKnown.disabled = !fields.some((field) => field.availableValueCount === 1 && field.fieldType !== "UNKNOWN");
+  if (fillKnown) fillKnown.disabled = !fields.some(isEligibleForMassFill);
   status.textContent = `${fields.length} field${fields.length === 1 ? "" : "s"} detected`;
   list.replaceChildren(...fields.map((field) => {
     const item = document.createElement("li");
@@ -100,7 +109,7 @@ list?.addEventListener("click", (event) => {
 });
 
 fillKnown?.addEventListener("click", () => {
-  if (detectedFields.some((field) => field.availableValueCount === 1 && field.fieldType !== "UNKNOWN")) {
+  if (detectedFields.some(isEligibleForMassFill)) {
     void sendFillMessage({ type: "FILL_KNOWN_FIELDS" });
   }
 });

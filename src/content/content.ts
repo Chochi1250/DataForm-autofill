@@ -1,5 +1,6 @@
 import { detectField, findFormElements } from "./detector";
 import { addValueAvailability, resolveFieldValue } from "./value-resolver";
+import { MASS_FILL_CONFIDENCE_THRESHOLD } from "../types";
 import type { DetectedField, DetectionResponse, FieldType } from "../types";
 
 const fields = new Map<string, DetectedField>();
@@ -38,6 +39,15 @@ type FillResult = { filled: true } | { filled: false; error: "ELEMENT_NOT_FOUND"
 
 function isFormElement(element: Element | null): element is FormElement {
   return element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement || element instanceof HTMLSelectElement;
+}
+
+function isEligibleForMassFill(field: DetectedField): boolean {
+  const [availableValue] = field.availableValues;
+  return field.fieldType !== "UNKNOWN"
+    && field.confidence >= MASS_FILL_CONFIDENCE_THRESHOLD
+    && field.availableValueCount === 1
+    && field.availableValues.length === 1
+    && Boolean(availableValue?.value.trim());
 }
 
 async function fillElement(elementId: string, fieldType: FieldType, valueId?: string): Promise<FillResult> {
@@ -82,7 +92,7 @@ chrome.runtime.onMessage.addListener((message: unknown, _sender, sendResponse) =
     }
     if (message.type === "FILL_KNOWN_FIELDS") {
       void addValueAvailability(Array.from(fields.values())).then(async (availableFields) => {
-        const fillable = availableFields.filter((field) => field.availableValueCount === 1 && field.fieldType !== "UNKNOWN");
+        const fillable = availableFields.filter(isEligibleForMassFill);
         const results = await Promise.all(fillable.map((field) => fillElement(field.elementId, field.fieldType, field.availableValues[0].id)));
         sendResponse({ filledCount: results.filter((result) => result.filled).length });
       });

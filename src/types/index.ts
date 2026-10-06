@@ -24,6 +24,10 @@ export const FIELD_TYPES = [
 
 export type FieldType = (typeof FIELD_TYPES)[number];
 
+// Mass autofill must only act on classifications with strong matcher evidence.
+// Individual fills remain an explicit user action and do not use this threshold.
+export const MASS_FILL_CONFIDENCE_THRESHOLD = 0.8;
+
 export interface FieldMetadata {
   name: string;
   id: string;

@@ -5,6 +5,7 @@ export type FormElement = HTMLInputElement | HTMLTextAreaElement | HTMLSelectEle
 
 const ELEMENT_ID = "data-jobform-element-id";
 let nextElementId = 1;
+const elementsByGeneratedId = new Map<string, FormElement>();
 
 function normalize(value: string | null | undefined): string {
   return (value ?? "").replace(/\s+/g, " ").trim();
@@ -26,9 +27,17 @@ function getNearbyText(element: FormElement): string {
 
 function getElementId(element: FormElement): string {
   const existing = element.getAttribute(ELEMENT_ID);
-  if (existing) return existing;
-  const id = `jobform-${nextElementId++}`;
+  if (existing && (!elementsByGeneratedId.has(existing) || elementsByGeneratedId.get(existing) === element)) {
+    elementsByGeneratedId.set(existing, element);
+    return existing;
+  }
+
+  let id = `jobform-${nextElementId++}`;
+  while (elementsByGeneratedId.has(id) || document.querySelector(`[${ELEMENT_ID}="${CSS.escape(id)}"]`)) {
+    id = `jobform-${nextElementId++}`;
+  }
   element.setAttribute(ELEMENT_ID, id);
+  elementsByGeneratedId.set(id, element);
   return id;
 }
 
