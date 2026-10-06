@@ -29,8 +29,12 @@
             <select name="fieldType" required>
               <option value="FIRST_NAME">First name</option>
               <option value="LAST_NAME">Last name</option>
+              <option value="PATERNAL_LAST_NAME">Paternal last name</option>
+              <option value="MATERNAL_LAST_NAME">Maternal last name</option>
               <option value="EMAIL">Email</option>
               <option value="PHONE">Phone</option>
+              <option value="PHONE_COUNTRY_CODE">Phone country code</option>
+              <option value="PHONE_ADDITIONAL_CODE">Phone additional code</option>
               <option value="CITY">City</option>
               <option value="COUNTRY">Country</option>
               <option value="LINKEDIN">LinkedIn</option>
@@ -48,6 +52,26 @@
           <p id="answer-status" role="status" aria-live="polite"></p>
         </form>
         <ul id="answer-list" class="answer-list" aria-live="polite"></ul>
+      </section>
+      <hr />
+      <section aria-labelledby="experiences-heading">
+        <h2 id="experiences-heading">Work experience</h2>
+        <form id="experience-form">
+          <input type="hidden" name="id" />
+          <label>Position <input name="position" required /></label>
+          <label>Company <input name="company" required /></label>
+          <label>Location <input name="location" /></label>
+          <label class="checkbox-label"><input name="current" type="checkbox" /> I currently work here</label>
+          <label>Start date <input name="startDate" type="month" required /></label>
+          <label>End date <input name="endDate" type="month" /></label>
+          <label>Description <textarea name="description" rows="4"></textarea></label>
+          <div class="form-actions">
+            <button type="submit">Save experience</button>
+            <button id="cancel-experience" type="button" hidden>Cancel edit</button>
+          </div>
+          <p id="experience-status" role="status" aria-live="polite"></p>
+        </form>
+        <ul id="experience-list" class="experience-list" aria-live="polite"></ul>
       </section>
     </main>
     <script type="module" src="/src/options/options.ts"></script>

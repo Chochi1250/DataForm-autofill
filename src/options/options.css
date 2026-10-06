@@ -19,5 +19,16 @@ button { width: fit-content; padding: .55rem .9rem; border: 0; border-radius: 4p
 .answer-actions { display: flex; gap: .5rem; }
 .answer-actions button { padding: .35rem .6rem; font-size: .85rem; }
 .answer-actions .delete { background: #b91c1c; }
+.checkbox-label { display: flex; grid-template-columns: auto 1fr; align-items: center; gap: .5rem; }
+.checkbox-label input { width: auto; }
+.experience-list { display: grid; gap: .7rem; list-style: none; padding: 0; }
+.experience-item { border: 1px solid #e2e8f0; border-radius: 4px; padding: .75rem; }
+.experience-item strong, .experience-item span, .experience-item p { display: block; }
+.experience-period, .experience-location { color: #526076; font-size: .85rem; }
+.experience-description { margin: .5rem 0 .65rem; white-space: pre-wrap; }
+.experience-actions { display: flex; gap: .5rem; }
+.experience-actions button { padding: .35rem .6rem; font-size: .85rem; }
+.experience-actions .delete { background: #b91c1c; }
 #status { min-height: 1.2em; margin: 0; color: #166534; }
 #answer-status { min-height: 1.2em; margin: 0; color: #166534; }
+#experience-status { min-height: 1.2em; margin: 0; color: #166534; }

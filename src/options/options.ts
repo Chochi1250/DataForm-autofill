@@ -1,6 +1,6 @@
 import "./options.css";
-import { deleteAnswer, getProfile, getSavedAnswers, saveAnswer, saveProfile, updateAnswer } from "../storage/storage";
-import { FIELD_TYPES, type FieldType, type Profile, type SavedAnswer } from "../types";
+import { deleteAnswer, deleteExperience, getExperiences, getProfile, getSavedAnswers, saveAnswer, saveExperience, saveProfile, updateAnswer, updateExperience } from "../storage/storage";
+import { FIELD_TYPES, type Experience, type FieldType, type Profile, type SavedAnswer } from "../types";
 
 const form = document.querySelector<HTMLFormElement>("#profile-form");
 const status = document.querySelector<HTMLParagraphElement>("#status");
@@ -8,6 +8,10 @@ const answerForm = document.querySelector<HTMLFormElement>("#answer-form");
 const answerList = document.querySelector<HTMLUListElement>("#answer-list");
 const answerStatus = document.querySelector<HTMLParagraphElement>("#answer-status");
 const cancelAnswer = document.querySelector<HTMLButtonElement>("#cancel-answer");
+const experienceForm = document.querySelector<HTMLFormElement>("#experience-form");
+const experienceList = document.querySelector<HTMLUListElement>("#experience-list");
+const experienceStatus = document.querySelector<HTMLParagraphElement>("#experience-status");
+const cancelExperience = document.querySelector<HTMLButtonElement>("#cancel-experience");
 
 const emptyProfile: Profile = {
   firstName: "",
@@ -159,4 +163,125 @@ answerList?.addEventListener("click", (event) => {
 
 void loadAnswers().catch(() => {
   if (answerStatus) answerStatus.textContent = "Could not load saved answers.";
+});
+
+function experienceField(name: "id" | "position" | "company" | "location" | "current" | "startDate" | "endDate" | "description"): HTMLInputElement | HTMLTextAreaElement | null {
+  return experienceForm?.elements.namedItem(name) as HTMLInputElement | HTMLTextAreaElement | null;
+}
+
+function resetExperienceForm(): void {
+  experienceForm?.reset();
+  const id = experienceField("id");
+  if (id) id.value = "";
+  if (cancelExperience) cancelExperience.hidden = true;
+}
+
+function editExperience(experience: Experience): void {
+  const id = experienceField("id");
+  const position = experienceField("position");
+  const company = experienceField("company");
+  const location = experienceField("location");
+  const current = experienceField("current");
+  const startDate = experienceField("startDate");
+  const endDate = experienceField("endDate");
+  const description = experienceField("description");
+  if (!id || !position || !company || !location || !current || !startDate || !endDate || !description) return;
+  id.value = experience.id;
+  position.value = experience.position;
+  company.value = experience.company;
+  location.value = experience.location;
+  (current as HTMLInputElement).checked = experience.current;
+  startDate.value = experience.startDate;
+  endDate.value = experience.endDate;
+  description.value = experience.description;
+  if (cancelExperience) cancelExperience.hidden = false;
+  position.focus();
+}
+
+function renderExperiences(experiences: Experience[]): void {
+  if (!experienceList) return;
+  experienceList.replaceChildren(...experiences.map((experience) => {
+    const item = document.createElement("li");
+    item.className = "experience-item";
+    item.dataset.experienceId = experience.id;
+    const position = document.createElement("strong");
+    position.textContent = experience.position;
+    const company = document.createElement("span");
+    company.textContent = experience.company;
+    const location = document.createElement("span");
+    location.className = "experience-location";
+    location.textContent = experience.location;
+    const period = document.createElement("span");
+    period.className = "experience-period";
+    period.textContent = `${experience.startDate} — ${experience.current ? "Present" : experience.endDate || "No end date"}`;
+    const description = document.createElement("p");
+    description.className = "experience-description";
+    description.textContent = experience.description;
+    const actions = document.createElement("div");
+    actions.className = "experience-actions";
+    const edit = document.createElement("button");
+    edit.type = "button";
+    edit.dataset.action = "edit";
+    edit.textContent = "Edit";
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.dataset.action = "delete";
+    remove.className = "delete";
+    remove.textContent = "Delete";
+    actions.append(edit, remove);
+    item.append(position, company, location, period, description, actions);
+    return item;
+  }));
+}
+
+async function loadExperiences(): Promise<void> {
+  renderExperiences(await getExperiences());
+}
+
+experienceForm?.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const id = experienceField("id")?.value.trim();
+  const position = experienceField("position")?.value.trim();
+  const company = experienceField("company")?.value.trim();
+  const location = experienceField("location")?.value.trim() ?? "";
+  const current = (experienceField("current") as HTMLInputElement | null)?.checked ?? false;
+  const startDate = experienceField("startDate")?.value.trim();
+  const endDate = experienceField("endDate")?.value.trim() ?? "";
+  const description = experienceField("description")?.value.trim() ?? "";
+  if (!position || !company || !startDate || (!current && !endDate)) {
+    if (experienceStatus) experienceStatus.textContent = "Position, company and dates are required.";
+    return;
+  }
+  const experience: Experience = { id: id || crypto.randomUUID(), position, company, location, current, startDate, endDate, description };
+  const operation = id ? updateExperience(id, experience) : saveExperience(experience);
+  void operation.then(() => loadExperiences()).then(() => {
+    resetExperienceForm();
+    if (experienceStatus) experienceStatus.textContent = "Experience saved.";
+  }).catch(() => {
+    if (experienceStatus) experienceStatus.textContent = "Could not save the experience.";
+  });
+});
+
+cancelExperience?.addEventListener("click", resetExperienceForm);
+
+experienceList?.addEventListener("click", (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLButtonElement)) return;
+  const item = target.closest<HTMLLIElement>("[data-experience-id]");
+  const id = item?.dataset.experienceId;
+  if (!id) return;
+  if (target.dataset.action === "edit") {
+    void getExperiences().then((experiences) => {
+      const experience = experiences.find((entry) => entry.id === id);
+      if (experience) editExperience(experience);
+    });
+  } else if (target.dataset.action === "delete") {
+    void deleteExperience(id).then(loadExperiences).then(() => {
+      if (experienceStatus) experienceStatus.textContent = "Experience deleted.";
+    });
+  }
+});
+
+void loadExperiences().catch(() => {
+  if (experienceStatus) experienceStatus.textContent = "Could not load experiences.";
 });
