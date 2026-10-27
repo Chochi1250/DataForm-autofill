@@ -1,4 +1,5 @@
 import { detectField, findFormElements } from "./detector";
+import { matchSelectOption, parseBooleanValue } from "./option-matcher";
 import { addValueAvailability, resolveFieldValue } from "./value-resolver";
 import { MASS_FILL_CONFIDENCE_THRESHOLD } from "../types";
 import type { DetectedField, DetectionResponse, FieldType } from "../types";
@@ -50,6 +51,57 @@ function isEligibleForMassFill(field: DetectedField): boolean {
     && Boolean(availableValue?.value.trim());
 }
 
+function getRadioLabelText(radio: HTMLInputElement): string {
+  if (radio.labels && radio.labels.length > 0) {
+    return Array.from(radio.labels).map((label) => label.textContent).join(" ").trim();
+  }
+  const wrapped = radio.closest("label");
+  if (wrapped?.textContent) {
+    return wrapped.textContent.trim();
+  }
+  if (radio.id) {
+    const labelFor = document.querySelector(`label[for="${CSS.escape(radio.id)}"]`);
+    if (labelFor?.textContent) {
+      return labelFor.textContent.trim();
+    }
+  }
+  return "";
+}
+
+function findMatchingRadio(radios: HTMLInputElement[], targetValue: string): HTMLInputElement | null {
+  const trimmedTarget = targetValue.trim();
+  if (!trimmedTarget) return null;
+
+  for (const radio of radios) {
+    if (radio.value.trim() === trimmedTarget || (radio.id && radio.id.trim() === trimmedTarget)) {
+      return radio;
+    }
+  }
+
+  const radioOptions = radios.map((radio, index) => ({
+    value: String(index),
+    text: getRadioLabelText(radio) || radio.value,
+  }));
+  const matchedIndex = matchSelectOption(radioOptions, targetValue);
+  if (matchedIndex !== null) {
+    return radios[Number(matchedIndex)] ?? null;
+  }
+
+  const targetBool = parseBooleanValue(targetValue);
+  if (targetBool !== null) {
+    const boolMatches = radios.filter((radio) => {
+      const valBool = parseBooleanValue(radio.value);
+      const labelBool = parseBooleanValue(getRadioLabelText(radio));
+      return valBool === targetBool || labelBool === targetBool;
+    });
+    if (boolMatches.length === 1) {
+      return boolMatches[0];
+    }
+  }
+
+  return null;
+}
+
 async function fillElement(elementId: string, fieldType: FieldType, valueId?: string): Promise<FillResult> {
   const detectedField = fields.get(elementId);
   if (!detectedField) return { filled: false, error: "ELEMENT_NOT_FOUND" };
@@ -61,6 +113,41 @@ async function fillElement(elementId: string, fieldType: FieldType, valueId?: st
   if (!isFormElement(element) || element.disabled) return { filled: false, error: "INVALID_ELEMENT" };
   const value = await resolveFieldValue(fieldType, valueId);
   if (!value) return { filled: false, error: "NO_VALUE" };
+
+  if (element instanceof HTMLSelectElement) {
+    const options = Array.from(element.options).map((opt) => ({ value: opt.value, text: opt.text }));
+    const matchedValue = matchSelectOption(options, value);
+    if (matchedValue === null) return { filled: false, error: "NO_VALUE" };
+    element.value = matchedValue;
+    element.dispatchEvent(new Event("change", { bubbles: true }));
+    element.dispatchEvent(new Event("input", { bubbles: true }));
+    return { filled: true };
+  }
+
+  if (element instanceof HTMLInputElement && element.type === "checkbox") {
+    const result = parseBooleanValue(value);
+    if (result === null) return { filled: false, error: "NO_VALUE" };
+    if (element.checked !== result) {
+      element.checked = result;
+      element.dispatchEvent(new Event("change", { bubbles: true }));
+      element.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+    return { filled: true };
+  }
+
+  if (element instanceof HTMLInputElement && element.type === "radio") {
+    const root = element.form ?? document;
+    const radios = element.name
+      ? Array.from(root.querySelectorAll<HTMLInputElement>(`input[type="radio"][name="${CSS.escape(element.name)}"]`))
+      : [element];
+    const matchedRadio = findMatchingRadio(radios, value);
+    if (!matchedRadio) return { filled: false, error: "NO_VALUE" };
+    matchedRadio.checked = true;
+    matchedRadio.dispatchEvent(new Event("change", { bubbles: true }));
+    matchedRadio.dispatchEvent(new Event("input", { bubbles: true }));
+    return { filled: true };
+  }
+
   element.value = value;
   element.dispatchEvent(new Event("input", { bubbles: true }));
   element.dispatchEvent(new Event("change", { bubbles: true }));
