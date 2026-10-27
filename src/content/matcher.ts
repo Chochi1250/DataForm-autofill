@@ -17,8 +17,8 @@ const EXPERIENCE_CONTEXT = /(?:work|professional|employment|career)[ _-]?experie
 const RULES: FieldRule[] = [
   { type: "EMAIL", patterns: [/e-?mail/, /correo(?:\s+electr[oó]nico)?/], typePatterns: [/^email$/] },
   { type: "FIRST_NAME", patterns: [/first[ _-]?name/, /given[ _-]?name/, /nombre(?!.*apellido)/] },
-  { type: "PATERNAL_LAST_NAME", patterns: [/paternal[ _-]?(last[ _-]?)?name/, /father(?:'s)?[ _-]?surname/, /apellido[ _-]?paterno/] },
-  { type: "MATERNAL_LAST_NAME", patterns: [/maternal[ _-]?(last[ _-]?)?name/, /mother(?:'s)?[ _-]?surname/, /apellido[ _-]?materno/] },
+  { type: "PATERNAL_LAST_NAME", patterns: [/paternal[ _-]?(?:last[ _-]?name|surname)/, /father(?:'s)?[ _-]?(?:last[ _-]?name|surname)/, /apellido[ _-]?paterno/] },
+  { type: "MATERNAL_LAST_NAME", patterns: [/maternal[ _-]?(?:last[ _-]?name|surname)/, /mother(?:'s)?[ _-]?(?:last[ _-]?name|surname)/, /apellido[ _-]?materno/] },
   { type: "LAST_NAME", patterns: [/last[ _-]?name/, /family[ _-]?name/, /surname/, /apellido/] },
   { type: "PHONE_COUNTRY_CODE", patterns: [/country[ _-]?code/, /calling[ _-]?code/, /dialing[ _-]?code/, /international[ _-]?prefix/, /c[oó]digo(?:[ _-]?(?:telef[oó]nico|de llamada))?[ _-]?nacional/, /prefijo[ _-]?(?:telef[oó]nico[ _-]?)?internacional/] },
   { type: "PHONE_ADDITIONAL_CODE", patterns: [/area[ _-]?code/, /phone[ _-]?(?:area|additional)[ _-]?code/, /c[oó]digo[ _-]?(?:de[ _-]?)?(?:[aá]rea|adicional)/, /prefijo[ _-]?telef[oó]nico[ _-]?adicional/] },

@@ -68,6 +68,14 @@ npm run build:firefox
 
 El resultado queda en `dist-firefox/`.
 
+## Pruebas
+
+Las pruebas unitarias del matcher usan los casos y señales de `test-fixtures/detector.html`.
+
+```powershell
+npm test
+```
+
 ## Cargar en Chrome
 
 1. Abrir `chrome://extensions`.

@@ -4,71 +4,136 @@
     <meta charset="UTF-8" />
     <title>JobForm Autofill — Detector fixture</title>
     <style>
-      body { font: 16px system-ui, sans-serif; max-width: 760px; margin: 2rem auto; padding: 0 1rem; }
-      fieldset { margin: 1rem 0; padding: 1rem; }
+      body { font: 16px system-ui, sans-serif; max-width: 860px; margin: 2rem auto; padding: 0 1rem; }
+      fieldset { margin: 1.25rem 0; padding: 1rem; }
       label, input, select, textarea { display: block; margin: .35rem 0; }
-      input, select, textarea { width: min(100%, 30rem); box-sizing: border-box; padding: .45rem; }
+      input, select, textarea { width: min(100%, 32rem); box-sizing: border-box; padding: .45rem; }
+      textarea { min-height: 5rem; }
       .inline { display: inline-block; width: auto; margin-right: 1rem; }
+      .hint, .auxiliary { color: #666; font-size: .875rem; }
+      .experience { border: 1px solid #ccc; margin: 1rem 0; padding: 1rem; }
     </style>
   </head>
   <body>
-    <h1>Detector fixture</h1>
-    <p>Esta página contiene variantes intencionalmente redundantes y ambiguas para validar señales y confianza.</p>
+    <h1>JobForm Autofill — Detector fixture</h1>
+    <p>Formulario autocontenido con duplicados, contexto y señales intencionalmente ambiguas.</p>
 
     <form>
       <fieldset>
-        <legend>Identidad</legend>
+        <legend>Datos personales</legend>
         <label for="first-name">Nombre</label>
         <input id="first-name" name="first_name" type="text" autocomplete="given-name" placeholder="Tu nombre" />
-
-        <label for="surname">Apellido</label>
-        <input id="surname" name="last_name" type="text" autocomplete="family-name" />
-
-        <label for="given-en">First name</label>
-        <input id="given-en" name="givenName" type="text" />
-
-        <label for="family-en">Last name</label>
-        <input id="family-en" name="familyName" type="text" />
-      </fieldset>
-
-      <fieldset>
-        <legend>Contacto</legend>
-        <label>Correo electrónico <input name="candidate_email" type="text" /></label>
-        <input name="emailAddress" type="email" placeholder="Email address" />
-        <label for="phone-es">Teléfono</label>
-        <input id="phone-es" name="telefono" type="tel" />
-        <input name="mobile_number" type="text" aria-label="Mobile phone" />
-      </fieldset>
-
-      <fieldset>
-        <legend>Ubicación</legend>
+        <label for="last-name">Apellido</label>
+        <input id="last-name" name="last_name" type="text" autocomplete="family-name" placeholder="Apellido" />
+        <label for="personal-email">Email</label>
+        <input id="personal-email" name="candidate_email" type="email" autocomplete="email" placeholder="nombre@ejemplo.com" />
+        <label for="personal-phone">Teléfono</label>
+        <input id="personal-phone" name="telefono" type="tel" autocomplete="tel" placeholder="11 1234 5678" />
         <label for="city">Ciudad</label>
-        <input id="city" name="city" type="text" />
-        <input name="location_country" type="text" placeholder="Country" />
-        <select name="pais" aria-label="País">
-          <option value="">Seleccioná un país</option>
-          <option>Argentina</option>
-        </select>
+        <input id="city" name="city" type="text" autocomplete="address-level2" />
+        <label for="country">País</label>
+        <input id="country" name="country" type="text" autocomplete="country-name" />
+        <label for="linkedin">LinkedIn</label>
+        <input id="linkedin" name="linkedin_url" type="url" placeholder="https://linkedin.com/in/..." />
       </fieldset>
 
       <fieldset>
-        <legend>Experiencia y enlaces</legend>
-        <label for="linkedin">Perfil profesional</label>
-        <input id="linkedin" name="linkedin_url" type="url" />
-        <input name="current_employer" type="text" placeholder="Current company" />
-        <label for="cargo">Puesto actual</label>
-        <input id="cargo" name="current_position" type="text" />
-        <input name="job_title" type="text" aria-label="Current job title" />
+        <legend>Campos potencialmente conflictivos</legend>
+        <label for="given-en">First name</label><input id="given-en" name="givenName" type="text" />
+        <label for="nombre-alt">Nombre</label><input id="nombre-alt" name="candidate_given" type="text" placeholder="First name" />
+        <label for="family-en">Last name</label><input id="family-en" name="familyName" type="text" />
+        <label for="apellido-alt">Apellido</label><input id="apellido-alt" name="surname_value" type="text" placeholder="Last name" />
+        <label for="email-address">Email address</label><input id="email-address" name="emailAddress" type="text" placeholder="Correo electrónico" />
+        <label for="correo-alt">Correo electrónico</label><input id="correo-alt" name="contact_value" type="email" placeholder="Email" />
+        <label for="phone-number">Phone number</label><input id="phone-number" name="phoneNumber" type="tel" placeholder="Phone" />
+        <label for="mobile-phone">Mobile phone</label><input id="mobile-phone" name="mobile_number" type="text" />
+        <label for="current-position">Current position</label><input id="current-position" name="current_position" type="text" placeholder="Puesto actual" />
+        <label for="current-job">Current job</label><input id="current-job" name="job_title" type="text" />
+        <label for="current-company">Current company</label><input id="current-company" name="current_employer" type="text" placeholder="Company" />
+        <label for="company-alt">Company</label><input id="company-alt" name="company_name" type="text" />
+        <label for="current-location">Current location</label><input id="current-location" name="location_current" type="text" placeholder="Location" />
       </fieldset>
 
       <fieldset>
-        <legend>Controles adicionales</legend>
-        <label for="cover-letter">Mensaje para el equipo</label>
-        <textarea id="cover-letter" name="cover_letter"></textarea>
-        <label class="inline"><input class="inline" type="checkbox" name="consent" /> Acepto las condiciones</label>
-        <label class="inline"><input class="inline" type="radio" name="work_mode" value="remote" /> Remoto</label>
-        <input name="portfolio" type="url" placeholder="Website or portfolio" />
-        <input type="text" aria-label="Additional information" />
+        <legend>Apellidos</legend>
+        <label for="apellido">Apellido</label><input id="apellido" name="apellido" type="text" />
+        <label for="apellido-paterno">Apellido paterno</label><input id="apellido-paterno" name="paternal_surname" type="text" />
+        <label for="apellido-materno">Apellido materno</label><input id="apellido-materno" name="maternal_surname" type="text" />
+        <label for="last-name-duplicate">Last name</label><input id="last-name-duplicate" name="last_name_duplicate" type="text" />
+        <label for="father-last-name">Father's last name</label><input id="father-last-name" name="father_last_name" type="text" />
+        <label for="mother-last-name">Mother's last name</label><input id="mother-last-name" name="mother_last_name" type="text" />
+      </fieldset>
+
+      <fieldset>
+        <legend>Teléfono</legend>
+        <label for="country-code">Country code</label><input id="country-code" name="dialing_code" type="text" placeholder="+54" />
+        <label for="phone-local">Phone number</label><input id="phone-local" name="local_phone" type="tel" />
+        <label for="area-code">Area code / Additional phone code</label><input id="area-code" name="area_code" type="text" />
+        <label for="mobile-local">Mobile phone</label><input id="mobile-local" name="mobile_phone" type="tel" />
+      </fieldset>
+
+      <fieldset>
+        <legend>Work Experience</legend>
+        <p class="hint">Agregá tus experiencias más recientes. Los dos bloques tienen campos legítimamente duplicados.</p>
+        <section class="experience" aria-labelledby="experience-one">
+          <h2 id="experience-one">Experience 1</h2>
+          <label for="job-title-1">Job title</label><input id="job-title-1" name="experience[0][job_title]" type="text" />
+          <label for="company-1">Company</label><input id="company-1" name="experience[0][company]" type="text" />
+          <label for="location-1">Location</label><input id="location-1" name="experience[0][location]" type="text" />
+          <label class="inline"><input class="inline" name="experience[0][current]" type="checkbox" /> Currently working here</label>
+          <label for="start-date-1">Start date</label><input id="start-date-1" name="experience[0][start_date]" type="date" />
+          <label for="end-date-1">End date</label><input id="end-date-1" name="experience[0][end_date]" type="date" />
+          <label for="description-1">Description</label><textarea id="description-1" name="experience[0][description]"></textarea>
+        </section>
+        <section class="experience" aria-labelledby="experience-two">
+          <h2 id="experience-two">Experience 2</h2>
+          <label for="job-title-2">Job title</label><input id="job-title-2" name="experience[1][job_title]" type="text" />
+          <label for="company-2">Company</label><input id="company-2" name="experience[1][company]" type="text" />
+          <label for="location-2">Location</label><input id="location-2" name="experience[1][location]" type="text" />
+          <label class="inline"><input class="inline" name="experience[1][current]" type="checkbox" /> Currently working here</label>
+          <label for="start-date-2">Start date</label><input id="start-date-2" name="experience[1][start_date]" type="date" />
+          <label for="end-date-2">End date</label><input id="end-date-2" name="experience[1][end_date]" type="date" />
+          <label for="description-2">Description</label><textarea id="description-2" name="experience[1][description]"></textarea>
+        </section>
+      </fieldset>
+
+      <fieldset>
+        <legend>Preguntas de aplicación</legend>
+        <label for="why-here">Why do you want to work here?</label><textarea id="why-here" name="why_work_here"></textarea>
+        <label for="about-you">Tell us about yourself</label><textarea id="about-you" name="about_candidate"></textarea>
+        <label for="salary">What are your salary expectations?</label><input id="salary" name="salary_expectations" type="text" />
+        <label for="role-question">What is your current role?</label><input id="role-question" name="current_role_answer" type="text" />
+        <label for="company-question">What company do you currently work for?</label><input id="company-question" name="current_company_answer" type="text" />
+        <label for="live-question">Where do you currently live?</label><input id="live-question" name="current_residence" type="text" />
+        <label for="years-experience">How many years of experience do you have?</label><input id="years-experience" name="years_experience" type="number" min="0" />
+        <label for="relevant-experience">Describe your most relevant experience</label><textarea id="relevant-experience" name="relevant_experience"></textarea>
+      </fieldset>
+
+      <fieldset>
+        <legend>Preguntas con respuestas seleccionables</legend>
+        <label for="authorization">Work authorization</label><select id="authorization" name="work_authorization"><option value="">Select an option</option><option>Authorized to work</option><option>Require sponsorship</option></select>
+        <label for="country-select">Country</label><select id="country-select" name="country_select"><option value="">Select country</option><option>Argentina</option><option>Chile</option></select>
+        <label for="employment-type">Employment type</label><select id="employment-type" name="employment_type"><option value="">Select type</option><option>Full-time</option><option>Part-time</option></select>
+        <p>Work arrangement</p>
+        <label class="inline"><input class="inline" type="radio" name="work_mode" value="remote" /> Remote</label>
+        <label class="inline"><input class="inline" type="radio" name="work_mode" value="hybrid" /> Hybrid</label>
+        <label class="inline"><input class="inline" type="radio" name="work_mode" value="onsite" /> On-site</label>
+        <p>Willing to relocate</p>
+        <label class="inline"><input class="inline" type="radio" name="relocate" value="yes" /> Yes</label>
+        <label class="inline"><input class="inline" type="radio" name="relocate" value="no" /> No</label>
+        <label class="inline"><input class="inline" type="checkbox" name="currently_employed" /> Currently employed</label>
+        <label class="inline"><input class="inline" type="checkbox" name="accept_terms" /> Accept terms</label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Campos desconocidos y auxiliares</legend>
+        <label for="internal-reference">Internal reference</label><input id="internal-reference" name="internal_reference" type="text" />
+        <label for="application-source">Application source</label><input id="application-source" name="application_source" type="text" />
+        <label for="tracking-code">Tracking code</label><input id="tracking-code" name="tracking_code" type="text" />
+        <label for="random-question">Random question</label><input id="random-question" name="random_answer" type="text" />
+        <label for="unrelated-number">Unrelated numeric field</label><input id="unrelated-number" name="arbitrary_number" type="number" />
+        <p class="auxiliary">Auxiliary note: email and phone details may be reviewed by recruiting operations.</p>
+        <button type="button">Preview application</button>
       </fieldset>
     </form>
   </body>
