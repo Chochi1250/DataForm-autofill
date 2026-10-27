@@ -15,6 +15,7 @@ const cancelExperience = document.querySelector<HTMLButtonElement>("#cancel-expe
 
 const emptyProfile: Profile = {
   firstName: "",
+  middleName: "",
   lastName: "",
   email: "",
   phone: "",
@@ -30,13 +31,14 @@ function field(name: keyof Profile): HTMLInputElement | null {
 function renderProfile(profile: Profile): void {
   for (const key of Object.keys(emptyProfile) as Array<keyof Profile>) {
     const input = field(key);
-    if (input) input.value = profile[key];
+    if (input) input.value = profile[key] ?? "";
   }
 }
 
 function readProfile(): Profile {
   return {
     firstName: field("firstName")?.value.trim() ?? "",
+    middleName: field("middleName")?.value.trim() ?? "",
     lastName: field("lastName")?.value.trim() ?? "",
     email: field("email")?.value.trim() ?? "",
     phone: field("phone")?.value.trim() ?? "",

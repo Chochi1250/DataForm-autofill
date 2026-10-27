@@ -16,7 +16,8 @@ const EXPERIENCE_CONTEXT = /(?:work|professional|employment|career)[ _-]?experie
 
 const RULES: FieldRule[] = [
   { type: "EMAIL", patterns: [/e-?mail/, /correo(?:\s+electr[oó]nico)?/], typePatterns: [/^email$/] },
-  { type: "FIRST_NAME", patterns: [/first[ _-]?name/, /given[ _-]?name/, /nombre(?!.*apellido)/] },
+  { type: "FIRST_NAME", patterns: [/first[ _-]?name/, /given[ _-]?name/, /(?<!segundo[ _-]?)nombre(?!.*(?:apellido|segundo))/] },
+  { type: "MIDDLE_NAME", patterns: [/middle[ _-]?name/, /second[ _-]?name/, /segundo[ _-]?nombre/, /segundonombre/, /additional[ _-]?name/] },
   { type: "PATERNAL_LAST_NAME", patterns: [/paternal[ _-]?(?:last[ _-]?name|surname)/, /father(?:'s)?[ _-]?(?:last[ _-]?name|surname)/, /apellido[ _-]?paterno/] },
   { type: "MATERNAL_LAST_NAME", patterns: [/maternal[ _-]?(?:last[ _-]?name|surname)/, /mother(?:'s)?[ _-]?(?:last[ _-]?name|surname)/, /apellido[ _-]?materno/] },
   { type: "LAST_NAME", patterns: [/last[ _-]?name/, /family[ _-]?name/, /surname/, /apellido/] },

@@ -1,5 +1,6 @@
 export const FIELD_TYPES = [
   "FIRST_NAME",
+  "MIDDLE_NAME",
   "LAST_NAME",
   "PATERNAL_LAST_NAME",
   "MATERNAL_LAST_NAME",
@@ -61,6 +62,7 @@ export interface DetectionResponse {
 
 export interface Profile {
   firstName: string;
+  middleName?: string;
   lastName: string;
   email: string;
   phone: string;

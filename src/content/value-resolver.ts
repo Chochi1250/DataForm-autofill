@@ -3,6 +3,7 @@ import type { AvailableValue, DetectedField, Experience, FieldType, Profile, Sav
 
 const PROFILE_FIELDS: Record<string, keyof Profile> = {
   FIRST_NAME: "firstName",
+  MIDDLE_NAME: "middleName",
   LAST_NAME: "lastName",
   EMAIL: "email",
   PHONE: "phone",

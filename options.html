@@ -11,6 +11,7 @@
       <p>Configurá tu perfil para usarlo más adelante en formularios.</p>
       <form id="profile-form">
         <label>First name <input name="firstName" autocomplete="given-name" /></label>
+        <label>Middle name <input name="middleName" autocomplete="additional-name" /></label>
         <label>Last name <input name="lastName" autocomplete="family-name" /></label>
         <label>Email <input name="email" type="email" autocomplete="email" /></label>
         <label>Phone <input name="phone" type="tel" autocomplete="tel" /></label>
@@ -28,6 +29,7 @@
           <label>Field type
             <select name="fieldType" required>
               <option value="FIRST_NAME">First name</option>
+              <option value="MIDDLE_NAME">Middle name</option>
               <option value="LAST_NAME">Last name</option>
               <option value="PATERNAL_LAST_NAME">Paternal last name</option>
               <option value="MATERNAL_LAST_NAME">Maternal last name</option>
