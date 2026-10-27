@@ -28,9 +28,14 @@ function confidenceClass(confidence: number): string {
 function render(fields: DetectedField[]): void {
   if (!status || !list) return;
   detectedFields = fields;
+  const visibleFields = fields.filter((field) => field.fieldType !== "UNKNOWN");
   if (fillKnown) fillKnown.disabled = !fields.some(isEligibleForMassFill);
-  status.textContent = `${fields.length} field${fields.length === 1 ? "" : "s"} detected`;
-  list.replaceChildren(...fields.map((field) => {
+  if (visibleFields.length === 0) {
+    status.textContent = "No se reconocieron campos compatibles en esta página.";
+  } else {
+    status.textContent = `${visibleFields.length} campos reconocidos (${fields.length} detectados)`;
+  }
+  list.replaceChildren(...visibleFields.map((field) => {
     const item = document.createElement("li");
     item.className = `field ${confidenceClass(field.confidence)}`;
     const fieldName = document.createElement("span");
