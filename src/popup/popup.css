@@ -6,10 +6,16 @@ h1 { font-size: 17px; margin: 0 0 14px; text-transform: uppercase; }
 #fill-known { margin-bottom: 10px; }
 #fill-known:disabled { cursor: not-allowed; opacity: .55; }
 .field-list { list-style: none; margin: 0; padding: 0; }
-.field { border-top: 1px solid #e2e8f0; padding: 10px 0; }
+.field { border-top: 1px solid #e2e8f0; padding: 10px 0; cursor: pointer; transition: background 0.15s ease; }
+.field:hover { background: #f8fafc; }
+.field-header { display: flex; justify-content: space-between; align-items: baseline; }
 .field-name { display: block; font-weight: 700; text-transform: capitalize; }
 .confidence { color: #526076; font-size: 12px; }
 .trace { display: block; color: #64748b; font-size: 11px; margin-top: 2px; overflow-wrap: anywhere; }
-.fill-field { display: block; margin-top: 7px; padding: 4px 8px; }
+.incidences-bar { display: flex; align-items: center; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+.incidences-label { font-size: 11px; color: #64748b; }
+.focus-btn { background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 3px; font-size: 11px; padding: 2px 6px; cursor: pointer; color: #334155; }
+.focus-btn:hover { background: #e2e8f0; border-color: #94a3b8; }
+.fill-field { display: block; margin-top: 7px; padding: 4px 8px; cursor: pointer; }
 .value-selection { display: block; margin-top: 7px; padding: 4px; max-width: 100%; }
 .high::before { content: "🟢 "; }.medium::before { content: "🟡 "; }.low::before { content: "🔴 "; }

@@ -154,6 +154,69 @@ async function fillElement(elementId: string, fieldType: FieldType, valueId?: st
   return { filled: true };
 }
 
+let highlightTimer: ReturnType<typeof setTimeout> | null = null;
+let currentlyHighlighted: Element | null = null;
+
+function ensureHighlightStyle(): void {
+  if (document.getElementById("jobform-highlight-style")) return;
+  const style = document.createElement("style");
+  style.id = "jobform-highlight-style";
+  style.textContent = `
+    @keyframes jobform-pulse-highlight {
+      0% {
+        outline: 3px solid #2563eb;
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.4);
+      }
+      50% {
+        outline: 4px solid #1d4ed8;
+        box-shadow: 0 0 0 8px rgba(37, 99, 235, 0.6);
+      }
+      100% {
+        outline: 3px solid #2563eb;
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.4);
+      }
+    }
+    .jobform-highlight-pulse {
+      animation: jobform-pulse-highlight 0.5s ease-in-out infinite alternate !important;
+      outline-offset: 2px !important;
+      transition: outline 0.2s ease !important;
+    }
+  `;
+  (document.head || document.documentElement).appendChild(style);
+}
+
+function highlightAndScrollToElement(elementId: string, scroll: boolean): boolean {
+  ensureHighlightStyle();
+  const element = elementsById.get(elementId) ?? document.querySelector(`[data-jobform-element-id="${CSS.escape(elementId)}"]`);
+  if (!element || !element.isConnected) return false;
+
+  if (scroll) {
+    element.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  if (currentlyHighlighted && currentlyHighlighted !== element) {
+    currentlyHighlighted.classList.remove("jobform-highlight-pulse");
+  }
+
+  if (highlightTimer) {
+    clearTimeout(highlightTimer);
+    highlightTimer = null;
+  }
+
+  element.classList.add("jobform-highlight-pulse");
+  currentlyHighlighted = element;
+
+  highlightTimer = setTimeout(() => {
+    element.classList.remove("jobform-highlight-pulse");
+    if (currentlyHighlighted === element) {
+      currentlyHighlighted = null;
+    }
+    highlightTimer = null;
+  }, 2000);
+
+  return true;
+}
+
 type FormElement = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
 
 inspect();
@@ -183,6 +246,14 @@ chrome.runtime.onMessage.addListener((message: unknown, _sender, sendResponse) =
         const results = await Promise.all(fillable.map((field) => fillElement(field.elementId, field.fieldType, field.availableValues[0].id)));
         sendResponse({ filledCount: results.filter((result) => result.filled).length });
       });
+      return true;
+    }
+  }
+  if (typeof message === "object" && message !== null && "type" in message && message.type === "HIGHLIGHT_FIELD") {
+    const msg = message as { type: "HIGHLIGHT_FIELD"; elementId?: string; scroll?: boolean };
+    if (msg.elementId) {
+      const success = highlightAndScrollToElement(msg.elementId, msg.scroll ?? true);
+      sendResponse({ success });
       return true;
     }
   }
