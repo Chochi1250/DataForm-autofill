@@ -33,6 +33,13 @@ test("clasifica nombre y variantes de apellido del fixture", () => {
   assertMatch("MATERNAL_LAST_NAME", { name: "mother_last_name", label: "Mother's last name" });
 });
 
+test("clasifica segundo nombre y sus variantes en español e inglés", () => {
+  assertMatch("MIDDLE_NAME", { name: "middle_name", label: "Middle name", autocomplete: "additional-name" });
+  assertMatch("MIDDLE_NAME", { name: "segundo_nombre", label: "Segundo nombre" });
+  assertMatch("MIDDLE_NAME", { name: "second_name", placeholder: "Second name" });
+  assertMatch("MIDDLE_NAME", { name: "segundonombre", label: "Segundo nombre" });
+});
+
 test("clasifica email y teléfonos, incluidos sus componentes", () => {
   assertMatch("EMAIL", { name: "candidate_email", type: "email", autocomplete: "email", label: "Email" });
   assertMatch("EMAIL", { name: "contact_value", type: "email", label: "Correo electrónico", placeholder: "Email" });
@@ -59,8 +66,20 @@ test("clasifica todos los campos de una experiencia cuando hay contexto", () => 
   assertMatch("EXPERIENCE_DESCRIPTION", { name: "experience[0][description]", type: "textarea", label: "Description", nearbyText });
 });
 
+test("clasifica campos de experiencia con etiquetas ambiguas dentro de contexto", () => {
+  const nearbyText = "Historial laboral — Empleo anterior";
+  assertMatch("EXPERIENCE_POSITION", { name: "campo_1", label: "Puesto", nearbyText });
+  assertMatch("EXPERIENCE_COMPANY", { name: "campo_2", label: "Empresa", nearbyText });
+  assertMatch("EXPERIENCE_START_DATE", { name: "campo_3", label: "Desde", nearbyText });
+  assertMatch("EXPERIENCE_END_DATE", { name: "campo_4", label: "Hasta", nearbyText });
+  assertMatch("EXPERIENCE_DESCRIPTION", { name: "campo_5", label: "Descripción de tareas", nearbyText });
+  assertMatch("EXPERIENCE_CURRENT", { name: "campo_6", type: "checkbox", label: "Actualmente trabajo aquí", nearbyText });
+});
+
 test("no infiere experiencia ni datos de perfil de casos conflictivos", () => {
   assertMatch("UNKNOWN", { name: "company_name", label: "Company" });
+  assertMatch("UNKNOWN", { name: "empresa", label: "Empresa" });
+  assertMatch("UNKNOWN", { name: "puesto", label: "Puesto" });
   assertMatch("UNKNOWN", { name: "location_current", label: "Current location", placeholder: "Location" });
   assertMatch("UNKNOWN", { name: "years_experience", type: "number", label: "How many years of experience do you have?" });
   assertMatch("UNKNOWN", { name: "relevant_experience", type: "textarea", label: "Describe your most relevant experience" });
