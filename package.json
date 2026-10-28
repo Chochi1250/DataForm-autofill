@@ -7,9 +7,14 @@
     "build:chrome": "tsc --noEmit && vite build --mode chrome && vite build --config vite.content.config.ts --mode chrome",
     "build:firefox": "tsc --noEmit && vite build --mode firefox && vite build --config vite.content.config.ts --mode firefox",
     "dev": "vite build --watch",
-    "test": "tsc -p tsconfig.test.json && node --test .test-dist/tests/*.test.js"
+    "test": "tsc -p tsconfig.test.json && node --test .test-dist/tests/*.test.js",
+    "lint": "biome check src/",
+    "lint:fix": "biome check --write src/",
+    "format": "biome format --write src/",
+    "check": "biome check --write src/ && tsc --noEmit"
   },
   "devDependencies": {
+    "@biomejs/biome": "1.9.4",
     "@types/chrome": "^0.0.322",
     "@types/node": "^24.0.0",
     "typescript": "^5.8.3",
