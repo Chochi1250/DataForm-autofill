@@ -12,7 +12,7 @@ interface FieldRule {
   requiresExperienceContext?: boolean;
 }
 
-const EXPERIENCE_CONTEXT = /(?:work|professional|employment|career)[ _-]?experience|work history|(?:experiencia|historial)[ _-]?(?:laboral|profesional)|employment history/;
+const EXPERIENCE_CONTEXT = /(?:work|professional|employment|career|past|previous)[ _-]?(?:experience|history|job|employment)|(?:experiencia|historial|antecedentes)[ _-]?(?:laboral|profesional|de empleo)?|trabajo[ _-]?(?:anterior|previo|actual)|empleo(?:s)?|work[ _-]?history|\bexperiencia\b|\bempleo\b|\bhistorial\b/i;
 
 const RULES: FieldRule[] = [
   { type: "EMAIL", patterns: [/e-?mail/, /correo(?:\s+electr[oó]nico)?/], typePatterns: [/^email$/] },
@@ -24,13 +24,13 @@ const RULES: FieldRule[] = [
   { type: "PHONE_COUNTRY_CODE", patterns: [/country[ _-]?code/, /calling[ _-]?code/, /dialing[ _-]?code/, /international[ _-]?prefix/, /c[oó]digo(?:[ _-]?(?:telef[oó]nico|de llamada))?[ _-]?nacional/, /prefijo[ _-]?(?:telef[oó]nico[ _-]?)?internacional/] },
   { type: "PHONE_ADDITIONAL_CODE", patterns: [/area[ _-]?code/, /phone[ _-]?(?:area|additional)[ _-]?code/, /c[oó]digo[ _-]?(?:de[ _-]?)?(?:[aá]rea|adicional)/, /prefijo[ _-]?telef[oó]nico[ _-]?adicional/] },
   { type: "PHONE", patterns: [/phone/, /mobile/, /tel[eé]fono/, /celular/], typePatterns: [/^tel$/] },
-  { type: "EXPERIENCE_POSITION", patterns: [/job[ _-]?title/, /position/, /puesto/, /cargo/], requiresExperienceContext: true },
-  { type: "EXPERIENCE_COMPANY", patterns: [/company/, /employer/, /empresa/, /compa[nñ][ií]a/], requiresExperienceContext: true },
-  { type: "EXPERIENCE_LOCATION", patterns: [/location/, /ubicaci[oó]n/, /localizaci[oó]n/], requiresExperienceContext: true },
-  { type: "EXPERIENCE_CURRENT", patterns: [/currently[ _-]?(?:working|work)[ _-]?here/, /current[ _-]?job/, /trabajo[ _-]?actualmente/, /actualmente/], requiresExperienceContext: true },
-  { type: "EXPERIENCE_START_DATE", patterns: [/start[ _-]?date/, /fecha[ _-]?de[ _-]?inicio/, /desde/], requiresExperienceContext: true },
-  { type: "EXPERIENCE_END_DATE", patterns: [/end[ _-]?date/, /fecha[ _-]?(?:de[ _-]?)?(?:finalizaci[oó]n|fin)/, /hasta/], requiresExperienceContext: true },
-  { type: "EXPERIENCE_DESCRIPTION", patterns: [/description/, /responsibilit(?:y|ies)/, /descripci[oó]n/, /responsabilidades/], requiresExperienceContext: true },
+  { type: "EXPERIENCE_POSITION", patterns: [/job[ _-]?(?:title|role|name)/, /position/, /puesto/, /cargo/, /t[ií]tulo(?:[ _-]?(?:del[ _-]?)?puesto)?/, /role/, /ocupaci[oó]n/], requiresExperienceContext: true },
+  { type: "EXPERIENCE_COMPANY", patterns: [/company/, /employer/, /empresa/, /compa[nñ][ií]a/, /empleador/, /organizaci[oó]n/, /organization/], requiresExperienceContext: true },
+  { type: "EXPERIENCE_LOCATION", patterns: [/location/, /ubicaci[oó]n/, /localizaci[oó]n/, /ciudad/, /city/, /lugar(?:[ _-]?(?:de[ _-]?)?trabajo)?/], requiresExperienceContext: true },
+  { type: "EXPERIENCE_CURRENT", patterns: [/currently[ _-]?(?:working|work)[ _-]?here/, /current[ _-]?(?:job|role|position)/, /trabajo[ _-]?(?:aqu[ií][ _-]?)?actualmente/, /actualmente(?:[ _-]?(?:trabajo[ _-]?)?aqu[ií])?/, /empleo[ _-]?actual/, /puesto[ _-]?actual/, /is[ _-]?current/], requiresExperienceContext: true },
+  { type: "EXPERIENCE_START_DATE", patterns: [/start[ _-]?date/, /fecha[ _-]?(?:de[ _-]?)?(?:inicio|comienzo|desde)/, /\bdesde\b/, /\bfrom\b/, /\binicio\b/, /\bcomienzo\b/], requiresExperienceContext: true },
+  { type: "EXPERIENCE_END_DATE", patterns: [/end[ _-]?date/, /fecha[ _-]?(?:de[ _-]?)?(?:finalizaci[oó]n|fin|terminaci[oó]n|hasta)/, /\bhasta\b/, /\bto\b/, /\bfin\b/, /\bfinalizaci[oó]n\b/], requiresExperienceContext: true },
+  { type: "EXPERIENCE_DESCRIPTION", patterns: [/description/, /responsibilit(?:y|ies)/, /descripci[oó]n(?:[ _-]?(?:de[ _-]?)?(?:tareas|funciones|rol))?/, /responsabilidades/, /tareas/, /funciones/, /duties/, /summary/], requiresExperienceContext: true },
   { type: "CITY", patterns: [/city/, /ciudad/, /localidad/] },
   { type: "COUNTRY", patterns: [/country/, /pa[ií]s/] },
   { type: "LINKEDIN", patterns: [/linked[ _-]?in/] },
@@ -44,15 +44,22 @@ const SIGNALS: Array<[keyof FieldMetadata, number]> = [
 
 export function matchField(metadata: FieldMetadata): MatchResult {
   let best: MatchResult = { fieldType: "UNKNOWN", confidence: 0 };
+  const contextSources = [metadata.nearbyText, metadata.name, metadata.id].join(" ").toLowerCase();
+  const hasExperienceContext = EXPERIENCE_CONTEXT.test(contextSources);
+
   for (const rule of RULES) {
-    const hasExperienceContext = EXPERIENCE_CONTEXT.test(metadata.nearbyText.toLowerCase());
     if (rule.requiresExperienceContext && !hasExperienceContext) continue;
     let score = 0;
     for (const [property, weight] of SIGNALS) {
       const value = metadata[property].toLowerCase();
       if (value && rule.patterns.some((pattern) => pattern.test(value))) score += weight;
     }
-    if (rule.requiresExperienceContext) score += 30;
+    if (rule.requiresExperienceContext) {
+      score += 35;
+      if (EXPERIENCE_CONTEXT.test(metadata.nearbyText.toLowerCase())) {
+        score += 15;
+      }
+    }
     if (rule.typePatterns?.some((pattern) => pattern.test(metadata.type.toLowerCase()))) score += 40;
     const confidence = Math.min(score / 100, 1);
     if (confidence > best.confidence) best = { fieldType: rule.type, confidence };

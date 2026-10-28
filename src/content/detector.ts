@@ -21,8 +21,13 @@ function getLabel(element: FormElement): string {
 }
 
 function getNearbyText(element: FormElement): string {
-  const container = element.closest("fieldset, [role='group'], .form-group, .field, p, div");
-  return normalize(container?.textContent).slice(0, 300);
+  const container = element.closest("fieldset, section, [role='group'], .form-group, .field, p, div");
+  const sectionOrFieldset = element.closest("fieldset, section");
+  const combined = [
+    container?.textContent,
+    sectionOrFieldset && sectionOrFieldset !== container ? sectionOrFieldset.textContent : "",
+  ].filter(Boolean).join(" ");
+  return normalize(combined).slice(0, 400);
 }
 
 function getElementId(element: FormElement): string {
